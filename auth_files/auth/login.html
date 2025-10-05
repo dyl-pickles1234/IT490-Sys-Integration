@@ -1,0 +1,37 @@
+<!-- THIS IS UNFINISHED -->
+<html>
+<script>
+
+	function HandleLoginResponse(response) {
+		console.log(response);
+		var text = JSON.parse(response);
+		//	document.getElementById("textResponse").innerHTML = response+"<p>";	
+		document.getElementById("textResponse").innerHTML = "response: " + text + "<p>";
+	}
+
+	function SendLoginRequest(email, password) {
+		var request = new XMLHttpRequest();
+		request.open("POST", "webserver.php", true);
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function () {
+
+			if ((this.readyState == 4) && (this.status == 200)) {
+				HandleLoginResponse(this.responseText);
+			}
+		}
+		request.send("type=login&email=" + email + "&pword=" + password);
+	}
+</script>
+
+<h1>Login!</h1>
+
+<body>
+	<div id="textResponse">
+		awaiting response
+	</div>
+	<script>
+		SendLoginRequest("kehoed", "12345");
+	</script>
+</body>
+
+</html>
