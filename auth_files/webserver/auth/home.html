@@ -1,35 +1,95 @@
-<!-- THIS IS UNFINISHED -->
 <html>
 <script>
 
-	function HandleLoginResponse(response) {
-		var text = JSON.parse(response);
+	function HandleLogoutResponse(response) {
+		var responseObj = JSON.parse(response);
+		console.log(responseObj);
+		success = responseObj[1];
 		//	document.getElementById("textResponse").innerHTML = response+"<p>";	
-		document.getElementById("textResponse").innerHTML = "response: " + text + "<p>";
+		// document.getElementById("textResponse").innerHTML = "response: " + responseObj[0] + "<p>";
+
+		if (success) {
+			// clear cookie
+			document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+			window.location.href = "index.html";
+		}
 	}
 
-	function SendLoginRequest(username, password) {
+	function SendLogoutRequest(session_id) {
 		var request = new XMLHttpRequest();
-		request.open("POST", "login.php", true);
+		request.open("POST", "webserver.php", true);
 		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 		request.onreadystatechange = function () {
 
 			if ((this.readyState == 4) && (this.status == 200)) {
-				HandleLoginResponse(this.responseText);
+				HandleLogoutResponse(this.responseText);
 			}
 		}
-		request.send("type=login&uname=" + username + "&pword=" + password);
+		request.send("type=logout&session_id=" + session_id);
+	}
+
+	function HandleSessionCheckResponse(response) {
+		var responseObj = JSON.parse(response);
+		console.log(responseObj);
+		success = responseObj[1];
+
+		if (success) {
+			return responseObj;
+		}
+
+		// clear cookie
+		document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+		return null;
+	}
+
+	function SendSessionCheckRequest(session_id) {
+		var request = new XMLHttpRequest();
+		request.open("POST", "webserver.php", false);
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.send("type=session_check&session_id=" + session_id);
+
+		if ((request.readyState == 4) && (request.status == 200)) {
+			return HandleSessionCheckResponse(request.responseText);
+		}
+	}
+
+	function getCookie(name) {
+		var value = "; " + document.cookie;
+		var parts = value.split("; " + name + "=");
+		if (parts.length === 2) return parts.pop().split(";").shift();
+		return null;
+	}
+
+	function getLoggedInUser() {
+		// retrieve the logged-in user's name from session
+		var session_id = getCookie("session_id");
+		if (session_id === null) return null;
+
+		var res = SendSessionCheckRequest(session_id);
+		if (res !== null) {
+			return "" + res[3] + " " + res[4]; // f_name + l_name
+		}
+		return null;
+	}
+
+	loggedInUser = getLoggedInUser();
+
+	if (loggedInUser === null) {
+		window.location.href = "login.html";
 	}
 </script>
 
-<h1>Login!</h1>
+<h1 id="welcome_text">Welcome, [placeholder]!</h1>
 
 <body>
-	<div id="textResponse">
-		awaiting response
-	</div>
+	<button type="button" id="logout_button">Log out!</button>
 	<script>
-		SendLoginRequest("kehoed", "12345");
+		document.getElementById("welcome_text").innerHTML = "Welcome, " + loggedInUser + "!";
+		document.getElementById("logout_button").addEventListener('click', function () {
+			var session_id = getCookie("session_id");
+			SendLogoutRequest(session_id);
+		});
 	</script>
 </body>
 

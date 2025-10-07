@@ -2,9 +2,16 @@
 <script>
 
 	function HandleRegisterResponse(response) {
-		var text = JSON.parse(response);
+		var responseObj = JSON.parse(response);
+		console.log(responseObj);
+		success = responseObj[1];
 		//	document.getElementById("textResponse").innerHTML = response+"<p>";	
-		document.getElementById("textResponse").innerHTML = "response: " + text + "<p>";
+		// document.getElementById("textResponse").innerHTML = "response: " + responseObj[0] + "<p>";
+		document.getElementById("textResponse").innerHTML = success ? "Registration successful!" : "Registration failed!";
+
+		if (success) {
+			window.location.href = "login.html";
+		}
 	}
 
 	function SendRegisterRequest(email, password, f_name, l_name) {
@@ -34,9 +41,7 @@
 <h1>Register</h1>
 
 <body>
-	<div id="textResponse">
-		awaiting response
-	</div>
+	<div id="textResponse"></div>
 	<p>First name: <input type="text" id="fname_input"></p>
 	<p>Last name: <input type="text" id="lname_input"></p>
 	<p>Email: <input type="email" id="email_input"></p>
