@@ -1,0 +1,22 @@
+How I set up the db:
+
+db name: auth
+
+tables:
+- users
+- sessions
+
+users:
+id (int, primary key, auto_incrememnt, etc)
+email varchar
+password varchar
+f_name varchar
+l_name varchar
+
+sessions:
+id (int, primary key, auto_incrememnt, etc)
+session_id (char64)
+email varchar
+f_name varchar
+l_name varchar
+expires (int)
