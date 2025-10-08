@@ -1,8 +1,8 @@
 How I set up the db:
 
-db name: auth
+db name: 490-proj
 
-tables:
+tables (so far):
 - users
 - sessions
 
