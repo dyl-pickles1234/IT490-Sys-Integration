@@ -60,7 +60,10 @@ $request = $_POST;
 $res = "unsupported request type";
 switch ($request["type"]) {
     case "register":
+        // send info to database for a response
         $ret = registerUser($request["email"], $request["pword"], $request["f_name"], $request["l_name"], $client);
+
+        // formulate our response to webserver js based on info from db response
         $res = array("register request", $ret[1]); // message, success
         break;
     case "login":
@@ -78,6 +81,7 @@ switch ($request["type"]) {
 
 }
 
+// return databse results to the webserver js
 echo json_encode($res);
 exit(0);
 

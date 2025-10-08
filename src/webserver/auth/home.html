@@ -1,6 +1,8 @@
 <html>
 <script>
-
+	// this whole request-specific setup is not very good;
+	// TODO abstract this to a more scalable system
+	// TODO also maybe just separate all of the js to files; keep html in the html
 	function HandleLogoutResponse(response) {
 		var responseObj = JSON.parse(response);
 		console.log(responseObj);

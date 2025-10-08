@@ -4,24 +4,26 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-function doLogout($session_id) {
-    $mydb = new mysqli('127.0.0.1','testUser','12345','auth');
+function doLogout($session_id)
+{
+    // IP of mysql database, db username, db password, and which db to use
+    // TODO change to new database name for proj, in all places (this code is copied in a few places)
+    // TODO stop having this code be copied in a few places
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'auth');
 
-    if ($mydb->errno != 0)
-    {
-        echo "failed to connect to database: ". $mydb->error . PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
         exit(0);
     }
-    echo "successfully connected to database".PHP_EOL;
+    echo "successfully connected to database" . PHP_EOL;
 
     // lookup session id in database
     $query = "select * from sessions where session_id = '" . $session_id . "';";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
     var_dump($response);
@@ -37,41 +39,39 @@ function doLogout($session_id) {
     $query = "delete from sessions where email = '" . $email . "';";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
 
     if ($response == true) {
-        echo "logout successful".PHP_EOL;
+        echo "logout successful" . PHP_EOL;
     } else {
-        echo "logout failed".PHP_EOL;
+        echo "logout failed" . PHP_EOL;
         return false;
     }
 
     return array("good logout", true);
 }
 
-function doSessionCheck($session_id) {
-    $mydb = new mysqli('127.0.0.1','testUser','12345','auth');
+function doSessionCheck($session_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'auth');
 
-    if ($mydb->errno != 0)
-    {
-        echo "failed to connect to database: ". $mydb->error . PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
         exit(0);
     }
-    echo "successfully connected to database".PHP_EOL;
+    echo "successfully connected to database" . PHP_EOL;
 
     // lookup session id in database
     $query = "select * from sessions where session_id = '" . $session_id . "';";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
     var_dump($response);
@@ -80,7 +80,7 @@ function doSessionCheck($session_id) {
         while ($row = mysqli_fetch_array($response)) {
             print_r($row);
         }
-        echo "too many entries for this session id".PHP_EOL;
+        echo "too many entries for this session id" . PHP_EOL;
         // FIX remove other entries
         return false;
     } else if ($response->num_rows < 1) { // no session found
@@ -92,16 +92,15 @@ function doSessionCheck($session_id) {
     // check expiration
     $current_time = time();
     if ($current_time > $row['expires']) {
-        echo "session expired".PHP_EOL;
+        echo "session expired" . PHP_EOL;
 
         // remove entry from database
         $query = "delete from sessions where session_id = '" . $session_id . "';";
 
         $response = $mydb->query($query);
-        if ($mydb->errno != 0)
-        {
-            echo "failed to execute query:".PHP_EOL;
-            echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+        if ($mydb->errno != 0) {
+            echo "failed to execute query:" . PHP_EOL;
+            echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
             exit(0);
         }
 
@@ -115,24 +114,23 @@ function doSessionCheck($session_id) {
     return array("good session", true, $email, $f_name, $l_name);
 }
 
-function doRegister($email, $password, $f_name, $l_name) {
-    $mydb = new mysqli('127.0.0.1','testUser','12345','auth');
+function doRegister($email, $password, $f_name, $l_name)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'auth');
 
-    if ($mydb->errno != 0)
-    {
-        echo "failed to connect to database: ". $mydb->error . PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
         exit(0);
     }
-    echo "successfully connected to database".PHP_EOL;
+    echo "successfully connected to database" . PHP_EOL;
 
     // lookup email in database
     $query = "select email from users where email = '" . $email . "';";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
     // var_dump($response);
@@ -141,7 +139,7 @@ function doRegister($email, $password, $f_name, $l_name) {
         while ($row = mysqli_fetch_array($response)) {
             print_r($row);
         }
-        echo "email already exists".PHP_EOL;
+        echo "email already exists" . PHP_EOL;
         return false;
     }
 
@@ -149,43 +147,41 @@ function doRegister($email, $password, $f_name, $l_name) {
     $query = "insert into users (email, password, f_name, l_name) values ('$email', '$password', '$f_name', '$l_name');";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
     //var_dump($response);
 
     if ($response == true) {
-        echo "yeah all good".PHP_EOL;
+        echo "yeah all good" . PHP_EOL;
     } else {
-        echo "bad".PHP_EOL;
+        echo "bad" . PHP_EOL;
         return false;
     }
 
     return array("reg good", true);
 }
 
-function doLogin($email,$password) {
-    $mydb = new mysqli('127.0.0.1','testUser','12345','auth');
+function doLogin($email, $password)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'auth');
 
-    if ($mydb->errno != 0)
-    {
-        echo "failed to connect to database: ". $mydb->error . PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
         exit(0);
     }
-    echo "successfully connected to database".PHP_EOL;
+    echo "successfully connected to database" . PHP_EOL;
 
 
     // lookup email in database
     $query = "select email from users where email = '" . $email . "';";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
     // var_dump($response);
@@ -195,7 +191,7 @@ function doLogin($email,$password) {
             print_r($row);
         }
     } else {
-        echo "email not found".PHP_EOL;
+        echo "email not found" . PHP_EOL;
         return false;
     }
 
@@ -203,10 +199,9 @@ function doLogin($email,$password) {
     $query = "select * from users where email = '" . $email . "' and password = '" . $password . "';";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
     // var_dump($response);
@@ -216,7 +211,7 @@ function doLogin($email,$password) {
         //     print_r($row);
         // }
     } else {
-        echo "password incorrect".PHP_EOL;
+        echo "password incorrect" . PHP_EOL;
         return false;
     }
 
@@ -235,10 +230,9 @@ function doLogin($email,$password) {
     $query = "insert into sessions (session_id, email, f_name, l_name, expires) values ('$generated_session_id', '$email', '$f_name', '$l_name', $expiration);";
 
     $response = $mydb->query($query);
-    if ($mydb->errno != 0)
-    {
-        echo "failed to execute query:".PHP_EOL;
-        echo __FILE__.':'.__LINE__.":error: ".$mydb->error.PHP_EOL;
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
         exit(0);
     }
     var_dump($response);
@@ -246,34 +240,36 @@ function doLogin($email,$password) {
         echo "session id: " . $generated_session_id . PHP_EOL;
         return array("login good", true, $generated_session_id);
     } else {
-        echo "failed to insert session".PHP_EOL;
+        echo "failed to insert session" . PHP_EOL;
         return false;
     }
 }
 
 function requestProcessor($request)
 {
-  echo "received request".PHP_EOL;
-  var_dump($request);
-  if(!isset($request['type']))
-  {
-    return "ERROR: unsupported message type";
-  }
-  switch ($request['type'])
-  {
-    case "register":
-      return doRegister($request['email'], $request['password'], $request['f_name'], $request['l_name']);
-    case "login":
-      return doLogin($request['email'], $request['password']);
-    case "session_check":
-      return doSessionCheck($request['session_id']);
-    case "logout":
-      return doLogout($request['session_id']);
-  }
-  return array("returnCode" => '0', 'message'=>"Server received request and processed");
+    echo "received request" . PHP_EOL;
+    var_dump($request);
+    if (!isset($request['type'])) {
+        return "ERROR: unsupported message type";
+    }
+
+    // add more cases here for each type of request the db can receive;
+    // this should match up with all requests the webserver is sending
+    switch ($request['type']) {
+        case "register":
+            return doRegister($request['email'], $request['password'], $request['f_name'], $request['l_name']);
+        case "login":
+            return doLogin($request['email'], $request['password']);
+        case "session_check":
+            return doSessionCheck($request['session_id']);
+        case "logout":
+            return doLogout($request['session_id']);
+    }
+
+    return array("returnCode" => '0', 'message' => "Server received request and processed");
 }
 
-$server = new rabbitMQServer("testRabbitMQ.ini","testServer");
+$server = new rabbitMQServer("testRabbitMQ.ini", "testServer");
 
 $server->process_requests('requestProcessor');
 exit();
