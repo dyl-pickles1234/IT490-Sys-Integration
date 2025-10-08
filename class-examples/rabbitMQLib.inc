@@ -52,7 +52,7 @@ class rabbitMQServer
 				// process request
 				$body = $msg->getBody();
 				$payload = json_decode($body, true);
-				$response;
+				$response = null;
 				if (isset($this->callback))
 				{
 					$response = call_user_func($this->callback,$payload);
