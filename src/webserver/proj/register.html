@@ -1,0 +1,63 @@
+<html>
+<script>
+
+	function HandleRegisterResponse(response) {
+		var responseObj = JSON.parse(response);
+		console.log(responseObj);
+		var res = responseObj[1];
+		var success;
+
+		if (res === false) {
+			success = false;
+		} else {
+			success = res[1];
+		}
+
+		//	document.getElementById("textResponse").innerHTML = response+"<p>";	
+		// document.getElementById("textResponse").innerHTML = "response: " + responseObj[0] + "<p>";
+		document.getElementById("textResponse").innerHTML = success ? "Registration successful!" : "Registration failed!";
+
+		if (success) {
+			window.location.href = "login.html";
+		}
+	}
+
+	function SendRegisterRequest(email, password, f_name, l_name) {
+		var request = new XMLHttpRequest();
+		request.open("POST", "webserver.php", true);
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function () {
+
+			if ((this.readyState == 4) && (this.status == 200)) {
+				HandleRegisterResponse(this.responseText);
+			}
+		}
+		request.send("type=register&email=" + email + "&pword=" + password + "&f_name=" + f_name + "&l_name=" + l_name);
+	}
+
+	function GetRegistrationInfo() {
+		email = document.getElementById("email_input").value;
+		password = document.getElementById("password_input").value;
+		f_name = document.getElementById("fname_input").value;
+		l_name = document.getElementById("lname_input").value;
+		// document.getElementById("textResponse").innerHTML = email + ' ' + password
+		SendRegisterRequest(email, password, f_name, l_name);
+	}
+
+</script>
+
+<h1>Register</h1>
+
+<body>
+	<div id="textResponse"></div>
+	<p>First name: <input type="text" id="fname_input"></p>
+	<p>Last name: <input type="text" id="lname_input"></p>
+	<p>Email: <input type="email" id="email_input"></p>
+	<p>Password <input type="password" id="password_input"></p>
+	<button type="button" id="register_button">Register!</button>
+	<script>
+		document.getElementById("register_button").addEventListener('click', GetRegistrationInfo);
+	</script>
+</body>
+
+</html>
