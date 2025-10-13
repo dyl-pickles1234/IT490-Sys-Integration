@@ -6,7 +6,15 @@
 	function HandleLogoutResponse(response) {
 		var responseObj = JSON.parse(response);
 		console.log(responseObj);
-		success = responseObj[1];
+		res = responseObj[1];
+		var success;
+
+		if (res === false) {
+			success = false;
+		} else {
+			success = res[1];
+		}
+
 		//	document.getElementById("textResponse").innerHTML = response+"<p>";	
 		// document.getElementById("textResponse").innerHTML = "response: " + responseObj[0] + "<p>";
 
@@ -33,10 +41,17 @@
 	function HandleSessionCheckResponse(response) {
 		var responseObj = JSON.parse(response);
 		console.log(responseObj);
-		success = responseObj[1];
+		var res = responseObj[1];
+		var success;
+
+		if (res === false) {
+			success = false;
+		} else {
+			success = res[1];
+		}
 
 		if (success) {
-			return responseObj;
+			return res;
 		}
 
 		// clear cookie

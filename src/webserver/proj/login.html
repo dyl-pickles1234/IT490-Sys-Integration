@@ -4,14 +4,22 @@
 	function HandleLoginResponse(response) {
 		var responseObj = JSON.parse(response);
 		console.log(responseObj);
-		success = responseObj[1];
+		var res = responseObj[1];
+		var success;
+
+		if (res === false) {
+			success = false;
+		} else {
+			success = res[1];
+		}
+
 		//	document.getElementById("textResponse").innerHTML = response+"<p>";	
 		// document.getElementById("textResponse").innerHTML = "response: " + responseObj[0] + "<p>";
 		document.getElementById("textResponse").innerHTML = success ? "Login successful!" : "Login failed!";
 
 		if (success) {
 			// set cookie
-			document.cookie = "session_id=" + responseObj[2] + "; path=/";
+			document.cookie = "session_id=" + res[2] + "; path=/";
 			window.location.href = "home.html";
 		}
 	}

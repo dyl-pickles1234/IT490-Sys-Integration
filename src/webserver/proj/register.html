@@ -4,7 +4,15 @@
 	function HandleRegisterResponse(response) {
 		var responseObj = JSON.parse(response);
 		console.log(responseObj);
-		success = responseObj[1];
+		var res = responseObj[1];
+		var success;
+
+		if (res === false) {
+			success = false;
+		} else {
+			success = res[1];
+		}
+
 		//	document.getElementById("textResponse").innerHTML = response+"<p>";	
 		// document.getElementById("textResponse").innerHTML = "response: " + responseObj[0] + "<p>";
 		document.getElementById("textResponse").innerHTML = success ? "Registration successful!" : "Registration failed!";

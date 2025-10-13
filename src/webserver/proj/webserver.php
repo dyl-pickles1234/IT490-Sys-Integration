@@ -60,25 +60,21 @@ $request = $_POST;
 $res = "unsupported request type";
 switch ($request["type"]) {
     case "register":
-        // send info to database for a response
-        $ret = registerUser($request["email"], $request["pword"], $request["f_name"], $request["l_name"], $client);
-
-        // formulate our response to webserver js based on info from db response
-        $res = array("register request", $ret[1]); // message, success
+        // message, success
+        $res = array("register request", registerUser($request["email"], $request["pword"], $request["f_name"], $request["l_name"], $client));
         break;
     case "login":
-        $ret = loginUser($request["email"], $request["pword"], $client);
-        $res = array("login request", $ret[1], $ret[2]); // message, success, session_id
+        // message, success, session_id
+        $res = array("login request", loginUser($request["email"], $request["pword"], $client));
         break;
     case "session_check":
-        $ret = sessionCheck($request["session_id"], $client);
-        $res = array("session_check request", $ret[1], $ret[2], $ret[3], $ret[4]); // message, success, email, f_name, l_name
+        // message, success, email, f_name, l_name
+        $res = array("session_check request", sessionCheck($request["session_id"], $client));
         break;
     case "logout":
-        $ret = logoutUser($request["session_id"], $client);
-        $res = array("logout request", $ret[1]); // message, success
+        // message, success
+        $res = array("logout request", logoutUser($request["session_id"], $client));
         break;
-
 }
 
 // return databse results to the webserver js
