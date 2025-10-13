@@ -1,0 +1,13 @@
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       Anywhere                  
+80,443/tcp                 ALLOW       Anywhere                  
+22/tcp                     ALLOW       100.126.91.122            
+22/tcp                     ALLOW       100.90.72.105             
+22/tcp                     ALLOW       100.104.103.6             
+22/tcp                     ALLOW       100.102.108.64            
+22/tcp (v6)                ALLOW       Anywhere (v6)             
+80,443/tcp (v6)            ALLOW       Anywhere (v6)             
+
