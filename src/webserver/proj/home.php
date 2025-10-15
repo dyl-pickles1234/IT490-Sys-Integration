@@ -1,3 +1,4 @@
+<?php include 'header.html'; ?>
 <html>
 <script>
 	// this whole request-specific setup is not very good;
@@ -100,14 +101,6 @@
 <h1 id="welcome_text">Welcome, [placeholder]!</h1>
 
 <body>
-	<button type="button" id="logout_button">Log out!</button>
-	<script>
-		document.getElementById("welcome_text").innerHTML = "Welcome, " + loggedInUser + "!";
-		document.getElementById("logout_button").addEventListener('click', function () {
-			var session_id = getCookie("session_id");
-			SendLogoutRequest(session_id);
-		});
-	</script>
 </body>
 
 </html>
