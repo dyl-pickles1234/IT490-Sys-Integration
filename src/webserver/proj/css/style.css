@@ -69,6 +69,7 @@ h1 {
 
 td {
     width: 200px;
+    min-width: max-content;
     padding: 10px;
     border-bottom: 1px solid #2c313a;
 }
@@ -84,4 +85,24 @@ table {
     padding: 15px;
     background-color: #1a1d22;
     width: calc(50%);
+}
+
+#share_button {
+    background-color: darkslateblue;
+    font-size: 1.25em;
+}
+
+#share_button:hover {
+    background-color: slateblue;
+}
+
+#share_button:active {
+    background-color: mediumpurple;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-left: 10px;
 }
