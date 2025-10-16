@@ -1,9 +1,9 @@
 <?php include 'header.html'; ?>
 <html>
 
-<h1>Build Your PC</h1>
-
 <body>
+    <h1>Build Your PC</h1>
+    <br>
     <table>
         <tr>
             <td>CPU</td>

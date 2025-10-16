@@ -1,4 +1,9 @@
 <html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+
 <script>
     // this whole request-specific setup is not very good;
     // TODO abstract this to a more scalable system
@@ -47,12 +52,14 @@
 </script>
 
 <header>
-    <div class="navbar">
-        <a href="/home.php"><img src="/static/logo.png" alt="Logo" class="logo"></a>
-        <a href="/build.php">Build</a>
+    <div class="navbar" style="display: flex; align-items:center;">
+        <a href="/home.php" style="padding: 0px; margin-right: 100px; margin-left: 10px; border-style: none;">
+            <img src="/img/logo.png" width="96px" style="image-rendering: crisp-edges; float: left;" class="logo">
+        </a>
+        <a href="/build.php" style="margin-left: auto;">Build</a>
         <a href="/component_finder.php">Component Finder</a>
         <a href="/forum.php">Forum</a>
-        <a href="/marketplace.php">Marketplace</a>
+        <a href="/marketplace.php" style="margin-right: auto;">Marketplace</a>
         <button type="button" id="logout_button">Log out</button>
         <script>
             document.getElementById("logout_button").addEventListener('click', function () {
