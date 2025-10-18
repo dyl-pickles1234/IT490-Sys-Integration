@@ -46,6 +46,7 @@ button {
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.1s;
+    font-size: 1em;
 }
 
 button:hover {
@@ -71,7 +72,13 @@ td {
     width: 200px;
     min-width: max-content;
     padding: 10px;
-    border-bottom: 1px solid #2c313a;
+    border-top: 1px solid #2c313a;
+    text-align: center;
+}
+
+th {
+    padding: 10px;
+    min-width: max-content;
 }
 
 table {
@@ -107,7 +114,7 @@ input[type="checkbox"] {
     margin-left: 10px;
 }
 
-h1 input[type="text"] {
+input[type="text"] {
     font-size: 1.25em;
     font-family: monospace;
     text-align: center;

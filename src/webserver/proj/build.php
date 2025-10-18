@@ -145,11 +145,21 @@
         </tr>
     </table>
     <br>
-    <div style="text-align: center;">
-        <span style="text-align: center; font-size: 1.5em; font-weight: bold;">Total: $0,000.00</span>
+    <?php if (!$all_selected): ?>
+        <div id="autocomplete_div" style="text-align: center;">
+            <span style="font-size: 1.35em; font-weight: bold;">Auto-complete my PC!</span>
+            <span style="font-size: 1.35em;"> - I want to prioritize </span>
+            <button type="button" id="lowest_price">lowest price</button>
+            <button type="button" id="most_performance">most performance</button>
+            <button type="button" id="best_value">best value</button>
+        </div>
+        <br>
+    <?php endif; ?>
+    <div id="total_price_div" style="text-align: center;">
+        <span style="font-size: 1.5em; font-weight: bold;">Total: $0,000.00</span>
     </div>
     <br>
-    <div style="text-align: center;">
+    <div id="share_build_div" style="text-align: center;">
         <button type="button" id="share_button">Share your build!</button>
     </div>
 </body>
