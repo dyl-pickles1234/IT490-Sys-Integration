@@ -135,3 +135,24 @@ h1 select {
     background-color: #2c313a;
     color: #e0e0e0;
 }
+
+.forum_post_list_item {
+    background-color: #2c313a;
+    border-radius: 12px;
+    border: 2px solid #464e5c;
+    padding: 15px;
+    max-width: 50%;
+    margin: 5px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.post_list_title {
+    font-size: 1.35em;
+    font-weight: bold;
+}
+
+.post_list_title a {
+    color: #ff6b51;
+    /* color: #8ab4f8; */
+}
