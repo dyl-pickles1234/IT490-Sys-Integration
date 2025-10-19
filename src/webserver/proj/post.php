@@ -25,7 +25,7 @@
             <span class="post_date"><?php echo $post_data[3] ?></span>
         </div>
         <div class="post_content">
-            <?php echo $post_data[4] ?>
+            <span style="font-size: 1.25em"><?php echo $post_data[4] ?></span>
             <hr>
             <div class="post_images">
                 <?php for ($i = 0; $i < count($post_data[5]); $i++): ?>

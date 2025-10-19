@@ -4,6 +4,8 @@
 <body>
     <h1>Forum</h1>
 
+    <div style="text-align: center;"><a href="new_post.php" style="font-size: 1.25em">➕ Create a New Post</a></div><br>
+
     <?php
     // grab forum posts from db
     // do in pages
