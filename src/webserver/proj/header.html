@@ -27,7 +27,12 @@
             document.getElementById("logout_button").addEventListener('click', function () {
                 var session_id = getCookie("session_id");
                 // SendLogoutRequest(session_id);
-                SendGenericRequest('logout', { session_id: session_id }, (response) => { clearSessionCookie(); });
+                SendGenericRequest('logout', { "session_id": session_id },
+                    (response) => {
+                        // clear session cookie
+                        document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                        window.location.href = "/";
+                    });
             });
         </script>
 
