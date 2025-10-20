@@ -26,7 +26,8 @@
         <script>
             document.getElementById("logout_button").addEventListener('click', function () {
                 var session_id = getCookie("session_id");
-                SendLogoutRequest(session_id);
+                // SendLogoutRequest(session_id);
+                SendGenericRequest('logout', { session_id: session_id }, (response) => { clearSessionCookie(); });
             });
         </script>
 

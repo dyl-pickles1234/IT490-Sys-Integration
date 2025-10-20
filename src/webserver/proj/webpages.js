@@ -1,8 +1,10 @@
-function HandleLogoutResponse(response) {
-    var responseObj = JSON.parse(response);
-    console.log(responseObj);
-    res = responseObj[1];
+function HandleGenericResponse(response, onSuccess = (res) => { }, onFailure = (res) => { }) {
     var success;
+    var responseObj = JSON.parse(response);
+
+    console.log(responseObj);
+
+    res = responseObj[1];
 
     if (res === false) {
         success = false;
@@ -10,27 +12,30 @@ function HandleLogoutResponse(response) {
         success = res[1];
     }
 
-    //	document.getElementById("textResponse").innerHTML = response+"<p>";	
-    // document.getElementById("textResponse").innerHTML = "response: " + responseObj[0] + "<p>";
-
     if (success) {
-        // clear cookie
-        document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        window.location.href = "/";
+        onSuccess(res);
+    } else {
+        onFailure(res);
     }
 }
 
-function SendLogoutRequest(session_id) {
+function SendGenericRequest(type, params = {}, onSuccess = (res) => { }, onFailure = (res) => { }) {
     var request = new XMLHttpRequest();
     request.open("POST", "webserver.php", true);
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.onreadystatechange = function () {
-
         if ((this.readyState == 4) && (this.status == 200)) {
-            HandleLogoutResponse(this.responseText);
+            HandleGenericResponse(this.responseText, onSuccess, onFailure);
         }
     }
-    request.send("type=logout&session_id=" + session_id);
+
+    var requestData = "type=" + type + "&";
+
+    Object.keys(params).forEach(key => {
+        requestData += key + "=" + params[key] + "&";
+    });
+
+    request.send(requestData);
 }
 
 function getCookie(name) {
@@ -38,6 +43,11 @@ function getCookie(name) {
     var parts = value.split("; " + name + "=");
     if (parts.length === 2) return parts.pop().split(";").shift();
     return null;
+}
+
+function clearSessionCookie() {
+    document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    window.location.href = "/";
 }
 
 function HandleSessionCheckResponse(response) {
