@@ -13,7 +13,7 @@ sudo ln -s ../sites-available/005-proj.conf 005-proj.conf
 
 cd /var/www/
 sudo cp -rs [PROJECT_ROOT_DIR]/src/webserver/proj/ .
-sudo cp -s [PROJECT_ROOT_DIR]/src/shared/* .
+sudo cp -s [PROJECT_ROOT_DIR]/src/shared/* proj/
 
 sudo systemctl restart apache2.service
 

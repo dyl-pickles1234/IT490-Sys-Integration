@@ -81,10 +81,6 @@ switch ($request["type"]) {
 echo json_encode($res);
 exit(0);
 
-// $response = registerUser("ppp@njit.edu", "password98", "Pylan", "PiPalma", $client);
-// $response = loginUser("ppp@njit.edu", "password98", $client);
-// $response = loginUser("ddd@njit.edu", "pa55word#", $client);
-
 // $request['message'] = $msg;
 
 //$response = $client->publish($request);
