@@ -3,6 +3,18 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function addToBuild($component, $product_id, $user_id, $client)
+{
+    $request = array();
+    $request['type'] = "add_to_build";
+    $request['component'] = $component;
+    $request['product_id'] = $product_id;
+    $request['user_id'] = $user_id;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
 function getPostWithID($post_id, $client)
 {
     $request = array();
@@ -145,6 +157,10 @@ switch ($request["type"]) {
     case "get_post_with_id":
         // message, success, post
         $res = array("get post with id request", getPostWithID($request["post_id"], $client));
+        break;
+    case "add_to_build":
+        // message, success
+        $res = array("add to build request", addToBuild($request["component"], $request["product_id"], $request["user_id"], $client));
         break;
 
     // default:

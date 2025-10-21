@@ -181,7 +181,7 @@ function populateProductsTable(component, searchString = "") {
 
         // add an extra cell with the add to build button
         var addButton = document.createElement("td");
-        addButton.innerHTML = '<button type="button" onclick="alert(\'Added to build!\')">Add to Build</button>';
+        addButton.innerHTML = '<button type="button" onclick="addToBuild(\'' + component + '\', ' + dataRow[0] + ')">Add to Build</button>';
         row.appendChild(addButton);
 
         productsTable.appendChild(row);
@@ -326,4 +326,18 @@ function populatePost(post_id) {
     for (var i = 0; i < comments.length; i++) {
         comments_section.innerHTML += '<div class="post_comment"><span class="comment_content">' + comments[i]['comment'] + '</span><div class="comment_author">' + comments[i]['author'] + '</div></div>';
     }
+}
+
+function addToBuild(component, product_id) {
+    let user_id = getLoggedInUser()[5];
+    SendGenericRequest('add_to_build', { 'component': component, 'product_id': product_id, 'user_id': user_id },
+        (res) => {
+            alert("Added to your build");
+            window.location.href = 'build.php';
+        },
+        (res) => {
+            console.log(res);
+            alert("Failed to add to build. Oops.");
+        }
+    );
 }
