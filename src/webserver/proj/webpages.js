@@ -44,48 +44,26 @@ function getCookie(name) {
     return null;
 }
 
-function HandleSessionCheckResponse(response) {
-    var responseObj = JSON.parse(response);
-    console.log(responseObj);
-    var res = responseObj[1];
-    var success;
-
-    if (res === false) {
-        success = false;
-    } else {
-        success = res[1];
-    }
-
-    if (success) {
-        return res;
-    }
-
-    // clear cookie
-    document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-
-    return null;
-}
-
-function SendSessionCheckRequest(session_id) {
-    var request = new XMLHttpRequest();
-    request.open("POST", "webserver.php", false);
-    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    request.send("type=session_check&session_id=" + session_id);
-
-    if ((request.readyState == 4) && (request.status == 200)) {
-        return HandleSessionCheckResponse(request.responseText);
-    }
-}
-
 function getLoggedInUser() {
     // retrieve the logged-in user's name from session
     var session_id = getCookie("session_id");
     if (session_id === null) return null;
 
-    var res = SendSessionCheckRequest(session_id);
-    if (res !== null) {
-        return res;
+    let result = [];
+    SendGenericRequest('session_check', { 'session_id': session_id },
+        (res) => {
+            result = res;
+        },
+        (res) => {
+            document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            result = null;
+        }
+    );
+
+    if (result !== null) {
+        return result;
     }
+
     return null;
 }
 
@@ -239,7 +217,7 @@ function populateBuild() {
     // for each component
     for (var i = 0; i < components.length; i++) {
         // get product
-        let result = '<a href="component_finder.php?component=cpu">';
+        let result = '<a href="component_finder.php?component=' + components[i] + '">';
         var product_id = build[i + 3];
         if (product_id) {
             let product = [];
@@ -254,11 +232,98 @@ function populateBuild() {
             );
             result = product[1] + ' ' + result;
             result += "(change)";
-            document.getElementById(components[i] + "_price_slot").textContent += product[product.length - 4];
+            var price = document.getElementById(components[i] + "_price_slot");
+            price.textContent += product[product.length - 4];
+
+            var subscribedUsers = product[product.length - 1].split(',');
+            var subscribed = false;
+            if (subscribedUsers.includes(user_id)) subscribed = true;
+
+            price.innerHTML += '<input type="checkbox" class="price_alert" id="' + components[i] + '"' + (subscribed ? " checked" : "") + '>';
         } else {
             result += "Select";
         }
         result += "</a>"
         document.getElementById(components[i] + "_name_slot").innerHTML = result;
+    }
+}
+
+function populateForum() {
+    let posts = [];
+    SendGenericRequest('get_posts', {},
+        (res) => {
+            posts = res[2];
+        },
+        (res) => {
+            console.log("failed to grab posts");
+        }
+    );
+
+    posts.forEach(post => {
+        let comments = [];
+        var parsedComments = JSON.parse(post[6]);
+        comments = parsedComments['comments'];
+
+        var post_list_item = document.createElement("div");
+        post_list_item.setAttribute("class", "forum_post_list_item");
+
+        var post_list_title = document.createElement("span");
+        post_list_title.setAttribute("class", "post_list_title");
+        post_list_title.innerHTML = '<a href="post.php?post=' + post[0] + '">' + post[1] + '</a>'
+
+        var post_list_metadata = document.createElement("div");
+        post_list_metadata.setAttribute("style", "display: inline; float: right; padding-top: 3;");
+        post_list_metadata.innerHTML = '<span class="post_list_author post_list_metadata">' + post[2] + '</span><span class="post_list_date post_list_metadata">' + post[3] + '</span><span class="post_list_engagements post_list_metadata">💚 ' + post[7] + ' | 💬 ' + comments.length + '</span>';
+
+        post_list_item.appendChild(post_list_title);
+        post_list_item.appendChild(post_list_metadata);
+
+        document.body.appendChild(post_list_item);
+    });
+}
+
+function populatePost(post_id) {
+    let post = [];
+    SendGenericRequest('get_post_with_id', { 'post_id': post_id },
+        (res) => {
+            post = res[2];
+        },
+        (res) => {
+            console.log("failed to grab post with id " + post_id);
+        }
+    );
+
+    let comments = [];
+    var parsedComments = JSON.parse(post[6]);
+    comments = parsedComments['comments'];
+
+    var title = document.getElementById("post_title");
+    title.textContent = post[1];
+
+    var post_metadata = document.getElementById("post_metadata");
+    post_metadata.innerHTML = '<span class="post_author">' + post[2] + '</span> - <span class="post_date">' + post[3] + '</span>';
+
+    var post_text_content = document.getElementById("post_text_content");
+    post_text_content.textContent = post[4];
+
+    var post_images = document.getElementById("post_images");
+    post_images.innerHTML = '';
+    let images = post[5].split(',');
+
+    for (var i = 0; i < images.length; i++) {
+        post_images.innerHTML += '<img src="post_img/' + images[i] + '" class="post_image"style="max-width: calc(95%/' + images.length + ')">';
+    }
+
+    var like_button = document.getElementById("like_button");
+    like_button.textContent = '💚 ' + post[7];
+
+    var comment_button = document.getElementById("comment_button");
+    comment_button.textContent = '💬 ' + comments.length;
+
+    var comments_section = document.getElementById("comments_section");
+    comments_section.innerHTML = '';
+
+    for (var i = 0; i < comments.length; i++) {
+        comments_section.innerHTML += '<div class="post_comment"><span class="comment_content">' + comments[i]['comment'] + '</span><div class="comment_author">' + comments[i]['author'] + '</div></div>';
     }
 }

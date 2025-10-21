@@ -3,6 +3,25 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function getPostWithID($post_id, $client)
+{
+    $request = array();
+    $request['type'] = "get_post_with_id";
+    $request['post_id'] = $post_id;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
+function getPosts($client)
+{
+    $request = array();
+    $request['type'] = "get_posts";
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
 function getBuild($user_id, $client)
 {
     $request = array();
@@ -118,6 +137,14 @@ switch ($request["type"]) {
     case "get_build":
         // message, success, build
         $res = array("get build request", getBuild($request["user_id"], $client));
+        break;
+    case "get_posts":
+        // message, success, posts
+        $res = array("get posts request", getPosts($client));
+        break;
+    case "get_post_with_id":
+        // message, success, post
+        $res = array("get post with id request", getPostWithID($request["post_id"], $client));
         break;
 
     // default:
