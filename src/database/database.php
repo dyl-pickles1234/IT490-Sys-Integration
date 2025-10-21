@@ -4,6 +4,70 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function doGetPostWithID($post_id) {
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab post with id
+    $query = "select * from posts where post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+    if ($response->num_rows > 1) {
+        echo "more than one post with id " . $post_id . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no post found with id " . $post_id . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $post = mysqli_fetch_array($response, MYSQLI_NUM);
+
+    return array("get post with id looks good", true, $post);
+}
+
+function doGetPosts() {
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab all posts
+    $query = "select * from posts;";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+
+    if ($response->num_rows < 1) {
+        echo "no posts found" . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $posts = mysqli_fetch_all($response, MYSQLI_NUM);
+
+    return array("get posts looks good", true, $posts);
+}
+
 function doGetProductWithID($component, $product_id)
 {
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
@@ -400,6 +464,10 @@ function requestProcessor($request)
             return doGetProductWithID($request['component'], $request['product_id']);
         case "get_build":
             return doGetBuild($request['user_id']);
+        case "get_posts":
+            return doGetPosts();
+        case "get_post_with_id":
+            return doGetPostWithID($request['post_id']);
     }
 
     return array("returnCode" => '0', 'message' => "Server received request and processed");
