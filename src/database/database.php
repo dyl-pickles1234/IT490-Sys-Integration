@@ -8,7 +8,7 @@ function doLogout($session_id)
 {
     // IP of mysql database, db username, db password, and which db to use
     // TODO stop having this code be copied in a few places
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
@@ -56,7 +56,7 @@ function doLogout($session_id)
 
 function doSessionCheck($session_id)
 {
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
@@ -115,7 +115,7 @@ function doSessionCheck($session_id)
 
 function doRegister($email, $password, $f_name, $l_name)
 {
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
@@ -165,7 +165,7 @@ function doRegister($email, $password, $f_name, $l_name)
 
 function doLogin($email, $password)
 {
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
