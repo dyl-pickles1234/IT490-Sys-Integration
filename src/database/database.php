@@ -4,6 +4,36 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function doAddToBuild($component, $product_id, $user_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    $query = "update builds set " . $component . "_id = " . $product_id . " WHERE builds.user_id = " . $user_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("add to build good", true);
+}
+
 function doGetPostWithID($post_id) {
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
@@ -468,6 +498,8 @@ function requestProcessor($request)
             return doGetPosts();
         case "get_post_with_id":
             return doGetPostWithID($request['post_id']);
+        case "add_to_build":
+            return doAddToBuild($request['component'], $request['product_id'], $request['user_id']);
     }
 
     return array("returnCode" => '0', 'message' => "Server received request and processed");
