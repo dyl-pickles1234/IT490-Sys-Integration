@@ -3,6 +3,38 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function getBuild($user_id, $client)
+{
+    $request = array();
+    $request['type'] = "get_build";
+    $request['user_id'] = $user_id;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
+function getProductWithID($component, $product_id, $client)
+{
+    $request = array();
+    $request['type'] = "get_product_with_id";
+    $request['component'] = $component;
+    $request['product_id'] = $product_id;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
+function getProducts($component, $search_string, $client)
+{
+    $request = array();
+    $request['type'] = "get_products";
+    $request['component'] = $component;
+    $request['search_string'] = $search_string;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
 function sessionCheck($session_id, $client)
 {
     $request = array();
@@ -68,13 +100,29 @@ switch ($request["type"]) {
         $res = array("login request", loginUser($request["email"], $request["pword"], $client));
         break;
     case "session_check":
-        // message, success, email, f_name, l_name
+        // message, success, email, f_name, l_name, user_id
         $res = array("session_check request", sessionCheck($request["session_id"], $client));
         break;
     case "logout":
         // message, success
         $res = array("logout request", logoutUser($request["session_id"], $client));
         break;
+    case "get_products":
+        // message, success, columns, entries
+        $res = array("get products request", getProducts($request["component"], $request["search_string"], $client));
+        break;
+    case "get_product_with_id":
+        // message, success, product
+        $res = array("get product with id request", getProductWithID($request["component"], $request["product_id"], $client));
+        break;
+    case "get_build":
+        // message, success, build
+        $res = array("get build request", getBuild($request["user_id"], $client));
+        break;
+
+    // default:
+    //     $res = array($request["type"] . " request", forwardRequestToDB($request, $client));
+
 }
 
 // return databse results to the webserver js

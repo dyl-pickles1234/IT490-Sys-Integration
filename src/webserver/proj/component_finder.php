@@ -28,47 +28,22 @@ $component = $_GET['component'];
         </select>
     </h1>
 
-    <?php
-    // grab component info from db
-    // save table cols
-    $component_table_cols = ['product name', 'speed', 'cores', 'platform', 'price', 'buy from']; // ex
-    $query_result = [
-        ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon'],
-        ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon'],
-        ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon'],
-        ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon']
-    ]; // ex
-    ?>
-
     <search style="text-align: center;">
         <input type="text" id="component_search" placeholder="Search Components" value="" autocomplete="off"
-            style="width: 300px;" oninput="searchComponents(this.value)">
+            style="width: 300px;">
+        <button type="button"
+            onclick="populateProductsTable('<?php echo $component; ?>', document.getElementById('component_search').value)">Search</button>
     </search>
     <br>
     <?php if (!$component)
         exit();
     ?>
-    <table>
-        <tr>
-            <?php
-            for ($i = 0; $i < count($component_table_cols); $i++) {
-                echo '<th><button type="button" onclick="sortBy(this.textContent)"; font-weight: bold;">' . $component_table_cols[$i] . '</button></th>';
-            }
-            ?>
-        </tr>
-        <?php
-        for ($i = 0; $i < count($query_result); $i++) {
-            $row = $query_result[$i];
-            echo '<tr>';
-            for ($j = 0; $j < count($component_table_cols); $j++) {
-                echo '<td>' . $row[$j] . '</td>';
-            }
-            echo '<td><button type="button" onclick="alert(\'Added to build!\')">Add to Build</button></td>';
-            echo '</tr>';
-        }
-        ?>
-
+    <table id="products_table">
     </table>
 </body>
+
+<script>
+    populateProductsTable('<?php echo $component; ?>');
+</script>
 
 </html>
