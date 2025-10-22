@@ -65,8 +65,8 @@
             <span style="font-size: 1.35em; font-weight: bold;">Auto-complete my PC!</span>
             <span style="font-size: 1.35em;"> - I want to prioritize </span>
             <button type="button" id="lowest_price">lowest price</button>
-            <button type="button" id="most_performance">most performance</button>
-            <button type="button" id="best_value">best value</button>
+            <!-- <button type="button" id="most_performance">most performance</button>
+            <button type="button" id="best_value">best value</button> -->
         </div>
         <br>
     <?php endif; ?>
