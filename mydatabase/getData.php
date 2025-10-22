@@ -26,12 +26,8 @@ foreach($data["itemSummaries"] as $info){
 }
 */
 
-    $id     = $info["itemId"];
-    $name   = $info["title"];
-    $price  = $info["price"]["value"];
-    $url    = $info["itemWebUrl"];
 
-function toDatabase($id, $name, $price, $url){
+function toDatabase($info){
 
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
@@ -40,6 +36,13 @@ function toDatabase($id, $name, $price, $url){
         exit(0);
     }
     echo "successfully connected to database" . PHP_EOL;
+
+    foreach($info as $test){
+
+    $id     = $test["itemId"];
+    $name   = $test["title"];
+    $price  = $test["price"]["value"];
+    $url    = $test["itemWebUrl"];
 
     // add new entry
     $query = "insert into gpu_stuff (item_id, name, price, url) values ('$id', '$name', '$price', '$url');";
@@ -57,10 +60,11 @@ function toDatabase($id, $name, $price, $url){
     } else {
         echo "bad" . PHP_EOL;
     }
+    }
 
 
 }
 
-toDatabase($id, $name, $price, $url);
+toDatabase($info);
 
 ?>
