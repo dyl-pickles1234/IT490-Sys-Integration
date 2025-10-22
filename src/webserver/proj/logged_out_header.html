@@ -1,0 +1,33 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="webpages.js"></script>
+</head>
+
+<script>
+    loggedInUser = getLoggedInUser();
+
+    if (loggedInUser != null) {
+        window.location.href = "home.php";
+    }
+</script>
+
+<header>
+    <div class="navbar" style="display: flex; align-items:center;">
+        <a href="/" style="padding: 0px; margin-right: 100px; margin-left: 10px; border-style: none;">
+            <img src="/img/logo.png" width="96px" style="image-rendering: crisp-edges; float: left;" class="logo">
+        </a>
+        <h4 style="margin-left: auto;">Build</h4>
+        <h4 href="/">Component Finder</h4>
+        <h4 href="/">Forum</h4>
+        <h4 href="/" style="margin-right: auto;">Marketplace</h4>
+        <button type="button" id="header_register_button" onclick="window.location.href = 'register.php'"
+            style="margin-right: 5px; margin-left: 0px;">Register</button>
+        <button type="button" id="header_login_button" onclick="window.location.href = 'login.php'"
+            style="margin-left: 5px;">Log
+            in</button>
+    </div>
+</header>
+
+</html>

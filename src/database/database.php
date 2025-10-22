@@ -4,11 +4,461 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function doSetBuildName($build_name, $user_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // set new value for build name
+    $query = "update builds set name = '" . $build_name . "' WHERE user_id = " . $user_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("set build name good", true);
+}
+
+function doSubscribeToProduct($component, $product_id, $checked, $user_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // get currently subscribed users
+    $query = "select subscribed_users from `" . $component . "` where product_id = " . $product_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+    if ($response->num_rows > 1) {
+        echo "more than one product with id " . $product_id . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no product found with id " . $product_id . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $subscribed_users = mysqli_fetch_array($response, MYSQLI_NUM)[0];
+    $subscribed_users = explode(',', $subscribed_users);
+
+    if ($checked == "true") {
+        $subscribed_users[] = $user_id;
+    } else {
+        for ($i = count($subscribed_users)-1; $i >= 0; $i--) {
+            if ($subscribed_users[$i] == $user_id) {
+                unset($subscribed_users[$i]);
+            }
+        }
+    }
+    print_r($subscribed_users);
+
+    $new_subscribed_users = "";
+    for ($i = 0; $i < count($subscribed_users); $i++) {
+        $new_subscribed_users = $new_subscribed_users . $subscribed_users[$i] . ',';
+    }
+
+    $new_subscribed_users = substr($new_subscribed_users, 0, -1);
+
+    // set new value for subscribed users
+    $query = "update `" . $component . "` set subscribed_users = '" . $new_subscribed_users . "' WHERE product_id = " . $product_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("subscribe to product good", true);
+}
+
+function doCommentOnPost($post_id, $comment, $author)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab existing comments
+    $query = "select comments from posts where post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+    if ($response->num_rows > 1) {
+        echo "more than one post with id " . $post_id . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no post found with id " . $post_id . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $comments = mysqli_fetch_array($response, MYSQLI_NUM)[0];
+    $comments = json_decode($comments, true);
+    print_r($comments);
+
+    $comments['comments'][] = array('comment'=>$comment, 'author'=>$author);
+    $comments = json_encode($comments);
+    print_r($comments);
+
+    $comments = addslashes($comments);
+
+    $query = "update posts set comments = '" . $comments . "' WHERE post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("comment on post good", true);
+}
+
+function doLikePost($post_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    $query = "update posts set likes = likes + 1 WHERE post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("like post good", true);
+}
+
+function doNewPost($title, $author, $content, $images)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    $title = addslashes($title);
+    $content = addslashes($content);
+
+    //create new post entry
+    $query = "insert into posts (title, author, content, images) values ('$title', '$author', '$content', '$images');";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("new post good", true);
+}
+
+function doAddToBuild($component, $product_id, $user_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    $query = "update builds set " . $component . "_id = " . $product_id . " WHERE builds.user_id = " . $user_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("add to build good", true);
+}
+
+function doGetPostWithID($post_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab post with id
+    $query = "select * from posts where post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+    if ($response->num_rows > 1) {
+        echo "more than one post with id " . $post_id . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no post found with id " . $post_id . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $post = mysqli_fetch_array($response, MYSQLI_NUM);
+
+    return array("get post with id looks good", true, $post);
+}
+
+function doGetPosts()
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab all posts
+    $query = "select * from posts;";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+
+    if ($response->num_rows < 1) {
+        echo "no posts found" . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $posts = mysqli_fetch_all($response, MYSQLI_NUM);
+
+    return array("get posts looks good", true, $posts);
+}
+
+function doGetProductWithID($component, $product_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab product
+    $query = "select * from `" . $component . "` where product_id = " . $product_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+
+    if ($response->num_rows > 1) {
+        // should only be one product
+        echo "more than one product found ERR" . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no product found with ID " . $product_id . " in table " . $component . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $product = mysqli_fetch_array($response, MYSQLI_NUM);
+
+    return array("get product with id looks good", true, $product);
+}
+
+function doGetBuild($user_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab this user's build
+    $query = "select * from builds where user_id = " . $user_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+
+    if ($response->num_rows > 1) {
+        // should only be one build (for now)
+        echo "more than one build found ERR" . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no build found for user " . $user_id . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $build = mysqli_fetch_array($response, MYSQLI_NUM);
+
+    return array("get build looks good", true, $build);
+}
+
+function doGetProducts($component, $search_string)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab columns in this component table
+    $query = "show columns from `" . $component . "`;";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+    $columns = [];
+    if ($response->num_rows >= 1) {
+        while ($row = mysqli_fetch_array($response)) {
+            print_r($row[0].PHP_EOL);
+            $columns[] = $row[0];
+        }
+    } else {
+        echo "no columns in " . $component . " table" . PHP_EOL;
+        return false;
+    }
+
+    // grab all products
+    $query = "select * from `" . $component . "` where name like '%" . $search_string . "%';";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+
+    if ($response->num_rows >= 1) {
+        // while ($row = mysqli_fetch_array($response)) {
+        //     print_r($row);
+        // }
+    } else {
+        echo "no products in table" . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $entries = mysqli_fetch_all($response, MYSQLI_NUM);
+
+    return array("get products looks good", true, $columns, $entries);
+}
+
 function doLogout($session_id)
 {
     // IP of mysql database, db username, db password, and which db to use
     // TODO stop having this code be copied in a few places
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
@@ -56,7 +506,7 @@ function doLogout($session_id)
 
 function doSessionCheck($session_id)
 {
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
@@ -109,13 +559,14 @@ function doSessionCheck($session_id)
     $email = $row['email'];
     $f_name = $row['f_name'];
     $l_name = $row['l_name'];
+    $user_id = $row['user_id'];
 
-    return array("good session", true, $email, $f_name, $l_name);
+    return array("good session", true, $email, $f_name, $l_name, $user_id);
 }
 
 function doRegister($email, $password, $f_name, $l_name)
 {
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
@@ -160,12 +611,43 @@ function doRegister($email, $password, $f_name, $l_name)
         return false;
     }
 
+    // get user_id we just created
+    $query = "select id from users where email = '" . $email . "';";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    var_dump($response);
+
+    $user_id = mysqli_fetch_array($response)[0];
+
+    // add new build for this user too
+    $query = "insert into builds (user_id) values ('$user_id');";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
     return array("reg good", true);
 }
 
 function doLogin($email, $password)
 {
-    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', '490-proj');
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
         echo "failed to connect to database: " . $mydb->error . PHP_EOL;
@@ -218,15 +700,16 @@ function doLogin($email, $password)
     $row = mysqli_fetch_assoc($response);
     $f_name = $row['f_name'];
     $l_name = $row['l_name'];
+    $user_id = $row['id'];
 
     // create session id
     $generated_session_id = bin2hex(random_bytes(32));
 
     // create expiration timestamp
-    $expiration = time() + (10); // 10 seconds for testing
+    $expiration = time() + (12 * 3600); // 12 hours from now
 
     // add session id to database
-    $query = "insert into sessions (session_id, email, f_name, l_name, expires) values ('$generated_session_id', '$email', '$f_name', '$l_name', $expiration);";
+    $query = "insert into sessions (session_id, email, f_name, l_name, user_id, expires) values ('$generated_session_id', '$email', '$f_name', '$l_name', $user_id, $expiration);";
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
@@ -263,6 +746,28 @@ function requestProcessor($request)
             return doSessionCheck($request['session_id']);
         case "logout":
             return doLogout($request['session_id']);
+        case "get_products":
+            return doGetProducts($request['component'], $request['search_string']);
+        case "get_product_with_id":
+            return doGetProductWithID($request['component'], $request['product_id']);
+        case "get_build":
+            return doGetBuild($request['user_id']);
+        case "get_posts":
+            return doGetPosts();
+        case "get_post_with_id":
+            return doGetPostWithID($request['post_id']);
+        case "add_to_build":
+            return doAddToBuild($request['component'], $request['product_id'], $request['user_id']);
+        case "new_post":
+            return doNewPost($request['title'], $request['author'], $request['content'], $request['images']);
+        case "like_post":
+            return doLikePost($request['post_id']);
+        case "comment_on_post":
+            return doCommentOnPost($request['post_id'], $request['comment'], $request['author']);
+        case "subscribe_to_product":
+            return doSubscribeToProduct($request['component'], $request['product_id'], $request['checked'], $request['user_id']);
+        case "set_build_name":
+            return doSetBuildName($request['build_name'], $request['user_id']);
     }
 
     return array("returnCode" => '0', 'message' => "Server received request and processed");

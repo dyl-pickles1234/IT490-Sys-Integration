@@ -5,143 +5,58 @@
     <h1>Build Your PC:
         <input type="text" id="build_name" name="build_name" placeholder="Build Name" value="" autocomplete="off"
             oninput="this.style.width = (this.value.length ? (this.value.length + 1) + 'ch' : '12ch');">
+        <button type="button" style="font-size: 0.75em" onclick="setBuildName()">Save Name</button>
     </h1>
     <br>
-
-    <?php
-    // grab selected components from db
-    $selected_cpu = 'Ryzen 7 5800x'; // ex
-    ?>
 
     <table>
         <tr>
             <td>CPU</td>
-            <td>
-                <?php
-                echo $selected_cpu . ' ';
-                echo '<a href="component_finder.php?component=cpu">';
-                if ($selected_cpu)
-                    echo "(change)";
-                else
-                    echo 'Select CPU';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert" id="cpu">
-            </td>
+            <span id="cpu_product_id_slot" hidden></span>
+            <td id="cpu_name_slot"></td>
+            <td id="cpu_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
         <tr>
             <td>Motherboard</td>
-            <td>
-                <?php
-                echo $selected_motherboard . ' ';
-                echo '<a href="component_finder.php?component=motherboard">';
-                if ($selected_motherboard)
-                    echo "(change)";
-                else
-                    echo 'Select Motherboard';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert"
-                    id="motherboard"></td>
+            <span id="motherboard_product_id_slot" hidden></span>
+            <td id="motherboard_name_slot"></td>
+            <td id="motherboard_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
         <tr>
             <td>Memory</td>
-            <td>
-                <?php
-                echo $selected_ram . ' ';
-                echo '<a href="component_finder.php?component=ram">';
-                if ($selected_ram)
-                    echo "(change)";
-                else
-                    echo 'Select RAM';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert" id="ram">
-            </td>
+            <span id="ram_product_id_slot" hidden></span>
+            <td id="ram_name_slot"></td>
+            <td id="ram_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
         <tr>
             <td>Graphics Card</td>
-            <td>
-                <?php
-                echo $selected_gpu . ' ';
-                echo '<a href="component_finder.php?component=gpu">';
-                if ($selected_gpu)
-                    echo "(change)";
-                else
-                    echo 'Select GPU';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert" id="gpu">
-            </td>
+            <span id="gpu_product_id_slot" hidden></span>
+            <td id="gpu_name_slot"></td>
+            <td id="gpu_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
         <tr>
             <td>Power Supply</td>
-            <td>
-                <?php
-                echo $selected_psu . ' ';
-                echo '<a href="component_finder.php?component=psu">';
-                if ($selected_psu)
-                    echo "(change)";
-                else
-                    echo 'Select PSU';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert" id="psu">
-            </td>
+            <span id="psu_product_id_slot" hidden></span>
+            <td id="psu_name_slot"></td>
+            <td id="psu_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
         <tr>
             <td>Cooler</td>
-            <td>
-                <?php
-                echo $selected_cooler . ' ';
-                echo '<a href="component_finder.php?component=cooler">';
-                if ($selected_cooler)
-                    echo "(change)";
-                else
-                    echo 'Select Cooler';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert" id="cooler">
-            </td>
+            <span id="cooler_product_id_slot" hidden></span>
+            <td id="cooler_name_slot"></td>
+            <td id="cooler_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
         <tr>
             <td>Storage</td>
-            <td>
-                <?php
-                echo $selected_storage . ' ';
-                echo '<a href="component_finder.php?component=storage">';
-                if ($selected_storage)
-                    echo "(change)";
-                else
-                    echo 'Select Storage';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert"
-                    id="storage">
-            </td>
+            <span id="storage_product_id_slot" hidden></span>
+            <td id="storage_name_slot"></td>
+            <td id="storage_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
         <tr>
             <td>Case</td>
-            <td>
-                <?php
-                echo $selected_case . ' ';
-                echo '<a href="component_finder.php?component=case">';
-                if ($selected_case)
-                    echo "(change)";
-                else
-                    echo 'Select Case';
-                echo '</a>';
-                ?>
-            </td>
-            <td style="max-width: 10px; padding: 0px;">$0,000.00 <input type="checkbox" class="price_alert" id="case">
-            </td>
+            <span id="case_product_id_slot" hidden></span>
+            <td id="case_name_slot"></td>
+            <td id="case_price_slot" style="max-width: 10px; padding: 0px;"></td>
         </tr>
     </table>
     <br>
@@ -150,18 +65,22 @@
             <span style="font-size: 1.35em; font-weight: bold;">Auto-complete my PC!</span>
             <span style="font-size: 1.35em;"> - I want to prioritize </span>
             <button type="button" id="lowest_price">lowest price</button>
-            <button type="button" id="most_performance">most performance</button>
-            <button type="button" id="best_value">best value</button>
+            <!-- <button type="button" id="most_performance">most performance</button>
+            <button type="button" id="best_value">best value</button> -->
         </div>
         <br>
     <?php endif; ?>
-    <div id="total_price_div" style="text-align: center;">
-        <span style="font-size: 1.5em; font-weight: bold;">Total: $0,000.00</span>
+    <div style="text-align: center;">
+        <span id="total_price_slot" style="font-size: 1.5em; font-weight: bold;">Total: $</span>
     </div>
     <br>
     <div id="share_build_div" style="text-align: center;">
-        <button type="button" id="share_button">Share your build!</button>
+        <button type="button" id="share_button" onclick="shareBuild()">Share your build!</button>
     </div>
 </body>
+
+<script>
+    populateBuild();
+</script>
 
 </html>
