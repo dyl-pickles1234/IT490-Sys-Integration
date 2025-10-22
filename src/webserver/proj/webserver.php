@@ -1,7 +1,7 @@
 <?php
-require_once('path.inc');
-require_once('get_host_info.inc');
-require_once('rabbitMQLib.inc');
+require_once(__DIR__ . '/../../shared/path.inc');
+require_once(__DIR__ . '/../../shared/get_host_info.inc');
+require_once(__DIR__ . '/../../shared/rabbitMQLib.inc');
 
 function sessionCheck($session_id, $client)
 {
@@ -48,7 +48,8 @@ function logoutUser($session_id, $client)
 }
 
 
-$client = new rabbitMQClient("testRabbitMQ.ini", "testServer");
+// Use shared INI by default (keeps original behavior)
+$client = new rabbitMQClient(__DIR__ . '/../../shared/testRabbitMQ.ini', "testServer");
 
 if (!isset($_POST)) {
     $msg = "NO POST MESSAGE SET";
@@ -57,28 +58,33 @@ if (!isset($_POST)) {
 }
 
 $request = $_POST;
-$res = "unsupported request type";
-switch ($request["type"]) {
-    case "register":
-        // message, success
-        $res = array("register request", registerUser($request["email"], $request["pword"], $request["f_name"], $request["l_name"], $client));
-        break;
-    case "login":
-        // message, success, session_id
-        $res = array("login request", loginUser($request["email"], $request["pword"], $client));
-        break;
-    case "session_check":
-        // message, success, email, f_name, l_name
-        $res = array("session_check request", sessionCheck($request["session_id"], $client));
-        break;
-    case "logout":
-        // message, success
-        $res = array("logout request", logoutUser($request["session_id"], $client));
-        break;
+
+// default error response
+$out = ['status' => 'error', 'code' => 400, 'message' => 'unsupported request type', 'data' => null];
+
+if (isset($request['type'])) {
+    switch ($request['type']) {
+        case 'register':
+            $resp = registerUser($request['email'] ?? '', $request['pword'] ?? '', $request['f_name'] ?? '', $request['l_name'] ?? '', $client);
+            $out = is_array($resp) && isset($resp['status']) ? $resp : ['status' => 'error', 'code' => 500, 'message' => 'invalid_response', 'data' => $resp];
+            break;
+        case 'login':
+            $resp = loginUser($request['email'] ?? '', $request['pword'] ?? '', $client);
+            $out = is_array($resp) && isset($resp['status']) ? $resp : ['status' => 'error', 'code' => 500, 'message' => 'invalid_response', 'data' => $resp];
+            break;
+        case 'session_check':
+            $resp = sessionCheck($request['session_id'] ?? '', $client);
+            $out = is_array($resp) && isset($resp['status']) ? $resp : ['status' => 'error', 'code' => 500, 'message' => 'invalid_response', 'data' => $resp];
+            break;
+        case 'logout':
+            $resp = logoutUser($request['session_id'] ?? '', $client);
+            $out = is_array($resp) && isset($resp['status']) ? $resp : ['status' => 'error', 'code' => 500, 'message' => 'invalid_response', 'data' => $resp];
+            break;
+    }
 }
 
-// return databse results to the webserver js
-echo json_encode($res);
+// return database results to the webserver JS
+echo json_encode($out);
 exit(0);
 
 // $response = registerUser("ppp@njit.edu", "password98", "Pylan", "PiPalma", $client);

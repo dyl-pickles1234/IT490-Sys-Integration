@@ -205,13 +205,9 @@ function doLogin($email, $password)
     }
     // var_dump($response);
 
-    if ($response->num_rows >= 1) {
-        // while ($row = mysqli_fetch_array($response)) {
-        //     print_r($row);
-        // }
-    } else {
-        echo "password incorrect" . PHP_EOL;
-        return false;
+    if ($response->num_rows < 1) {
+        // email exists check passed earlier, but no matching password
+        return array('status' => 'error', 'code' => 401, 'message' => 'invalid_credentials');
     }
 
     // get first and last name from response
@@ -230,17 +226,15 @@ function doLogin($email, $password)
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
-        echo "failed to execute query:" . PHP_EOL;
-        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
-        exit(0);
+        error_log("failed to execute query: " . $mydb->error);
+        return array('status' => 'error', 'code' => 500, 'message' => 'session_insert_failed');
     }
-    var_dump($response);
+
     if ($response == true) {
-        echo "session id: " . $generated_session_id . PHP_EOL;
-        return array("login good", true, $generated_session_id);
+        // success - return standardized contract
+        return array('status' => 'ok', 'code' => 200, 'message' => 'login_success', 'data' => array('session_id' => $generated_session_id, 'expires' => $expiration));
     } else {
-        echo "failed to insert session" . PHP_EOL;
-        return false;
+        return array('status' => 'error', 'code' => 500, 'message' => 'session_insert_failed');
     }
 }
 
