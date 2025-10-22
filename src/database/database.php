@@ -4,6 +4,108 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function doSetBuildName($build_name, $user_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // set new value for build name
+    $query = "update builds set name = '" . $build_name . "' WHERE user_id = " . $user_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("set build name good", true);
+}
+
+function doSubscribeToProduct($component, $product_id, $checked, $user_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // get currently subscribed users
+    $query = "select subscribed_users from " . $component . " where product_id = " . $product_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+    if ($response->num_rows > 1) {
+        echo "more than one product with id " . $product_id . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no product found with id " . $product_id . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $subscribed_users = mysqli_fetch_array($response, MYSQLI_NUM)[0];
+    $subscribed_users = explode(',', $subscribed_users);
+
+    if ($checked == "true") {
+        $subscribed_users[] = $user_id;
+    } else {
+        for ($i = count($subscribed_users)-1; $i >= 0; $i--) {
+            if ($subscribed_users[$i] == $user_id) {
+                unset($subscribed_users[$i]);
+            }
+        }
+    }
+    print_r($subscribed_users);
+
+    $new_subscribed_users = "";
+    for ($i = 0; $i < count($subscribed_users); $i++) {
+        $new_subscribed_users = $new_subscribed_users . $subscribed_users[$i] . ',';
+    }
+
+    $new_subscribed_users = substr($new_subscribed_users, 0, -1);
+
+    // set new value for subscribed users
+    $query = "update " . $component . " set subscribed_users = '" . $new_subscribed_users . "' WHERE product_id = " . $product_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("subscribe to product good", true);
+}
+
 function doCommentOnPost($post_id, $comment, $author)
 {
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
@@ -40,6 +142,8 @@ function doCommentOnPost($post_id, $comment, $author)
     $comments['comments'][] = array('comment'=>$comment, 'author'=>$author);
     $comments = json_encode($comments);
     print_r($comments);
+
+    $comments = addslashes($comments);
 
     $query = "update posts set comments = '" . $comments . "' WHERE post_id = " . $post_id . ";";
 
@@ -100,6 +204,9 @@ function doNewPost($title, $author, $content, $images)
         exit(0);
     }
     echo "successfully connected to database" . PHP_EOL;
+
+    $title = addslashes($title);
+    $content = addslashes($content);
 
     //create new post entry
     $query = "insert into posts (title, author, content, images) values ('$title', '$author', '$content', '$images');";
@@ -626,6 +733,10 @@ function requestProcessor($request)
             return doLikePost($request['post_id']);
         case "comment_on_post":
             return doCommentOnPost($request['post_id'], $request['comment'], $request['author']);
+        case "subscribe_to_product":
+            return doSubscribeToProduct($request['component'], $request['product_id'], $request['checked'], $request['user_id']);
+        case "set_build_name":
+            return doSetBuildName($request['build_name'], $request['user_id']);
     }
 
     return array("returnCode" => '0', 'message' => "Server received request and processed");
