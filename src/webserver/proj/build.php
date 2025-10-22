@@ -77,12 +77,12 @@
         </div>
         <br>
     <?php endif; ?>
-    <div id="total_price_div" style="text-align: center;">
-        <span style="font-size: 1.5em; font-weight: bold;">Total: $0,000.00</span>
+    <div style="text-align: center;">
+        <span id="total_price_slot" style="font-size: 1.5em; font-weight: bold;">Total: $</span>
     </div>
     <br>
     <div id="share_build_div" style="text-align: center;">
-        <button type="button" id="share_button">Share your build!</button>
+        <button type="button" id="share_button" onclick="shareBuild()">Share your build!</button>
     </div>
 </body>
 

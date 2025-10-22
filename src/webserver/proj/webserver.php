@@ -3,6 +3,56 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function commentOnPost($post_id, $comment, $author, $client)
+{
+    $request = array();
+    $request['type'] = "comment_on_post";
+    $request['post_id'] = $post_id;
+    $request['comment'] = $comment;
+    $request['author'] = $author;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
+function likePost($post_id, $client)
+{
+    $request = array();
+    $request['type'] = "like_post";
+    $request['post_id'] = $post_id;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
+function saveImage($request, $client)
+{
+    //todo fix
+    print_r($_FILES);
+    echo $request;
+    // save image to disk
+    $bool = move_uploaded_file($_FILES['image']['tmp_name'], 'post_img/' . $request['name']);
+    if ($bool) {
+        echo 'yeah';
+        return true;
+    } else {
+        echo 'nah';
+        return false;
+    }
+}
+function newPost($title, $author, $content, $images, $client)
+{
+    $request = array();
+    $request['type'] = "new_post";
+    $request['title'] = $title;
+    $request['author'] = $author;
+    $request['content'] = $content;
+    $request['images'] = $images;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
 function addToBuild($component, $product_id, $user_id, $client)
 {
     $request = array();
@@ -161,6 +211,22 @@ switch ($request["type"]) {
     case "add_to_build":
         // message, success
         $res = array("add to build request", addToBuild($request["component"], $request["product_id"], $request["user_id"], $client));
+        break;
+    case "new_post":
+        // message, success
+        $res = array("new post request", newPost($request["title"], $request["author"], $request["content"], $request["images"], $client));
+        break;
+    case "save_image":
+        // message, success
+        $res = array("save image request", saveImage($request["image"], $client));
+        break;
+    case "like_post":
+        // message, success
+        $res = array("like post request", likePost($request["post_id"], $client));
+        break;
+    case "comment_on_post":
+        // message, success
+        $res = array("comment on post request", commentOnPost($request["post_id"], $request["comment"], $request["author"], $client));
         break;
 
     // default:

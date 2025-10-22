@@ -13,7 +13,7 @@ $post_id = $_GET['post'];
             <div id="post_images" class="post_images"></div>
         </div>
         <div class="post_engagements" style="text-align: center; font-size: larger;">
-            <button type="button" id="like_button">💚 </button>
+            <button type="button" id="like_button" onclick="likePost(<?php echo $post_id; ?>)">💚 </button>
             -
             <button type="button" id="comment_button"
                 onclick="document.getElementById('comment_input').hidden = false">💬
@@ -22,8 +22,8 @@ $post_id = $_GET['post'];
             <div id="comment_input" hidden>
                 <textarea id="comment_textarea" rows="4" cols="50"
                     placeholder="Write your comment here..."></textarea><br><br>
-                <button type="button" id="submit_comment_button"
-                    onclick="document.getElementById('comment_input').hidden = true">Submit Comment</button>
+                <button type="button" id="submit_comment_button" onclick="commentOnPost(<?php echo $post_id; ?>)">Submit
+                    Comment</button>
             </div>
         </div>
         <h2 style="text-align: center;">Comments:</h2>

@@ -114,15 +114,6 @@ function getProducts(component, searchString = "") {
             console.log("failed to grab product data");
         });
     return [cols, queryResult];
-    // return [
-    //     [component + ' name', 'speed', 'cores', 'platform', 'price', 'buy from'],
-    //     [
-    //         ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon'],
-    //         ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon'],
-    //         ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon'],
-    //         ['Ryzen 7 5800x', '3.8', '8', 'AM4', '0000.00', 'Amazon']
-    //     ]
-    // ];
 }
 
 function populateProductsTable(component, searchString = "") {
@@ -214,6 +205,7 @@ function populateBuild() {
     nameInput.value = build[2];
     nameInput.style.width = (nameInput.value.length ? (nameInput.value.length + 1) + 'ch' : '12ch');
 
+    var totalPriceValue = 0.0;
     // for each component
     for (var i = 0; i < components.length; i++) {
         // get product
@@ -235,6 +227,8 @@ function populateBuild() {
             var price = document.getElementById(components[i] + "_price_slot");
             price.textContent += product[product.length - 4];
 
+            totalPriceValue += parseFloat(product[product.length - 4]);
+
             var subscribedUsers = product[product.length - 1].split(',');
             var subscribed = false;
             if (subscribedUsers.includes(user_id)) subscribed = true;
@@ -246,6 +240,10 @@ function populateBuild() {
         result += "</a>"
         document.getElementById(components[i] + "_name_slot").innerHTML = result;
     }
+
+    // fill total price
+    var totalPriceSlot = document.getElementById("total_price_slot");
+    totalPriceSlot.textContent += totalPriceValue;
 }
 
 function populateForum() {
@@ -304,7 +302,7 @@ function populatePost(post_id) {
     post_metadata.innerHTML = '<span class="post_author">' + post[2] + '</span> - <span class="post_date">' + post[3] + '</span>';
 
     var post_text_content = document.getElementById("post_text_content");
-    post_text_content.textContent = post[4];
+    post_text_content.innerText = post[4];
 
     var post_images = document.getElementById("post_images");
     post_images.innerHTML = '';
@@ -340,4 +338,124 @@ function addToBuild(component, product_id) {
             alert("Failed to add to build. Oops.");
         }
     );
+}
+
+//todo fix
+async function sendImage(image) {
+    const formData = new FormData();
+    formData.append('image', image);
+    var res = await fetch('webserver.php', {
+        method: 'POST',
+        body: formData
+    });
+}
+
+function newPost() {
+    // get title
+    var titleInput = document.getElementById("new_post_title");
+    let title = titleInput.value;
+
+    // get author
+    var user = getLoggedInUser();
+    let author = user[3] + ' ' + user[4];
+
+    //get content
+    var contentInput = document.getElementById("new_post_textarea");
+    let content = contentInput.value;
+
+    // get list of image paths
+    var imageInput = document.getElementById("post_image_upload");
+    var imageFiles = imageInput.files;
+    console.log(imageFiles);
+    let images = "";
+
+    for (var i = 0; i < imageFiles.length; i++) {
+        // images += "" + Date.now() + "_" + imageFiles[i]["name"] + ',';
+        images += imageFiles[i]["name"] + ',';
+    }
+
+    images = images.slice(0, images.length - 1);
+
+    // // save images to webserver
+    // for (var file of imageFiles) {
+    //     file["name"] = "" + Date.now() + "_" + file["name"];
+    //     sendImage(file);
+    // }
+
+    // send data
+    SendGenericRequest('new_post', { 'title': title, 'author': author, 'content': content, 'images': images },
+        (res) => {
+            alert("Posted!");
+            window.location.href = 'forum.php';
+        },
+        (res) => {
+            console.log(res);
+            alert("Failed to make post. Oops.");
+        }
+    );
+}
+
+function likePost(post_id) {
+    SendGenericRequest('like_post', { 'post_id': post_id },
+        (res) => {
+            var likes = document.getElementById("like_button");
+            var likesNum = parseInt(likes.textContent.split('💚 ')[1]);
+            likes.textContent = '💚 ' + (likesNum + 1);
+        },
+        (res) => {
+            console.log("failed to like");
+            console.log(res);
+        }
+    )
+}
+
+function commentOnPost(post_id) {
+    // get author
+    var user = getLoggedInUser();
+    let author = user[3] + ' ' + user[4];
+
+    // gwt content
+    var commentInput = document.getElementById("comment_textarea");
+    let comment = commentInput.value;
+
+    SendGenericRequest('comment_on_post', { 'post_id': post_id, 'comment': comment, 'author': author },
+        (res) => {
+            window.location.reload();
+        },
+        (res) => {
+            console.log("failed to comment");
+            console.log(res);
+        }
+    );
+}
+
+function shareBuild() {
+    var buildName = document.getElementById("build_name").value;
+    var cpuName = document.getElementById("cpu_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var moboName = document.getElementById("motherboard_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var ramName = document.getElementById("ram_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var gpuName = document.getElementById("gpu_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var psuName = document.getElementById("psu_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var coolerName = document.getElementById("cooler_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var storageName = document.getElementById("storage_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var caseName = document.getElementById("case_name_slot").textContent.split(" (change)")[0].split("Select")[0];
+    var totalPrice = document.getElementById("total_price_slot").textContent;
+
+    var content = `Check out my build!
+
+-${buildName}-
+CPU: ${cpuName}
+Mobo: ${moboName}
+RAM: ${ramName}
+GPU: ${gpuName}
+PSU: ${psuName}
+Cooler: ${coolerName}
+Storage: ${storageName}
+Case: ${caseName}
+
+${totalPrice}
+`
+
+    var encoded = encodeURI(content);
+    window.location.href = 'new_post.php?content=' + encoded;
 }
