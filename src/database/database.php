@@ -46,7 +46,7 @@ function doSubscribeToProduct($component, $product_id, $checked, $user_id)
     echo "successfully connected to database" . PHP_EOL;
 
     // get currently subscribed users
-    $query = "select subscribed_users from " . $component . " where product_id = " . $product_id . ";";
+    $query = "select subscribed_users from `" . $component . "` where product_id = " . $product_id . ";";
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
@@ -86,7 +86,7 @@ function doSubscribeToProduct($component, $product_id, $checked, $user_id)
     $new_subscribed_users = substr($new_subscribed_users, 0, -1);
 
     // set new value for subscribed users
-    $query = "update " . $component . " set subscribed_users = '" . $new_subscribed_users . "' WHERE product_id = " . $product_id . ";";
+    $query = "update `" . $component . "` set subscribed_users = '" . $new_subscribed_users . "' WHERE product_id = " . $product_id . ";";
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
@@ -336,7 +336,7 @@ function doGetProductWithID($component, $product_id)
     echo "successfully connected to database" . PHP_EOL;
 
     // grab product
-    $query = "select * from " . $component . " where product_id = " . $product_id . ";";
+    $query = "select * from `" . $component . "` where product_id = " . $product_id . ";";
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
@@ -408,7 +408,7 @@ function doGetProducts($component, $search_string)
     echo "successfully connected to database" . PHP_EOL;
 
     // grab columns in this component table
-    $query = "show columns from " . $component . ";";
+    $query = "show columns from `" . $component . "`;";
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
@@ -429,7 +429,7 @@ function doGetProducts($component, $search_string)
     }
 
     // grab all products
-    $query = "select * from " . $component . " where name like '%" . $search_string . "%';";
+    $query = "select * from `" . $component . "` where name like '%" . $search_string . "%';";
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
@@ -595,6 +595,37 @@ function doRegister($email, $password, $f_name, $l_name)
 
     // add new entry
     $query = "insert into users (email, password, f_name, l_name) values ('$email', '$password', '$f_name', '$l_name');";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    // get user_id we just created
+    $query = "select id from users where email = '" . $email . "';";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    var_dump($response);
+
+    $user_id = mysqli_fetch_array($response)[0];
+
+    // add new build for this user too
+    $query = "insert into builds (user_id) values ('$user_id');";
 
     $response = $mydb->query($query);
     if ($mydb->errno != 0) {
