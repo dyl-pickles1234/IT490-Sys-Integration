@@ -4,6 +4,93 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function doCommentOnPost($post_id, $comment, $author)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    // grab existing comments
+    $query = "select comments from posts where post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    // var_dump($response);
+    if ($response->num_rows > 1) {
+        echo "more than one post with id " . $post_id . PHP_EOL;
+        return false;
+    } else if ($response->num_rows < 1) {
+        echo "no post found with id " . $post_id . PHP_EOL;
+        // return array("kinda", true, $columns);
+        return false;
+    }
+
+    $comments = mysqli_fetch_array($response, MYSQLI_NUM)[0];
+    $comments = json_decode($comments, true);
+    print_r($comments);
+
+    $comments['comments'][] = array('comment'=>$comment, 'author'=>$author);
+    $comments = json_encode($comments);
+    print_r($comments);
+
+    $query = "update posts set comments = '" . $comments . "' WHERE post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("comment on post good", true);
+}
+
+function doLikePost($post_id)
+{
+    $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
+
+    if ($mydb->errno != 0) {
+        echo "failed to connect to database: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    echo "successfully connected to database" . PHP_EOL;
+
+    $query = "update posts set likes = likes + 1 WHERE post_id = " . $post_id . ";";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
+
+    return array("like post good", true);
+}
+
 function doNewPost($title, $author, $content, $images)
 {
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
@@ -65,7 +152,8 @@ function doAddToBuild($component, $product_id, $user_id)
     return array("add to build good", true);
 }
 
-function doGetPostWithID($post_id) {
+function doGetPostWithID($post_id)
+{
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
@@ -98,7 +186,8 @@ function doGetPostWithID($post_id) {
     return array("get post with id looks good", true, $post);
 }
 
-function doGetPosts() {
+function doGetPosts()
+{
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
@@ -533,6 +622,10 @@ function requestProcessor($request)
             return doAddToBuild($request['component'], $request['product_id'], $request['user_id']);
         case "new_post":
             return doNewPost($request['title'], $request['author'], $request['content'], $request['images']);
+        case "like_post":
+            return doLikePost($request['post_id']);
+        case "comment_on_post":
+            return doCommentOnPost($request['post_id'], $request['comment'], $request['author']);
     }
 
     return array("returnCode" => '0', 'message' => "Server received request and processed");
