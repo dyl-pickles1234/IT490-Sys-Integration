@@ -225,7 +225,7 @@ function populateBuild() {
             result = product[1] + ' ' + result;
             result += "(change)";
             var price = document.getElementById(components[i] + "_price_slot");
-            price.textContent += product[product.length - 4];
+            price.textContent += '$' + product[product.length - 4];
 
             totalPriceValue += parseFloat(product[product.length - 4]);
 
@@ -233,7 +233,10 @@ function populateBuild() {
             var subscribed = false;
             if (subscribedUsers.includes(user_id)) subscribed = true;
 
-            price.innerHTML += '<input type="checkbox" class="price_alert" id="' + components[i] + '"' + (subscribed ? " checked" : "") + '>';
+            price.innerHTML += '<input type="checkbox" class="price_alert" id="' + components[i] + '"' + (subscribed ? " checked" : "") + ' oninput="subscribeToProduct(\'' + components[i] + '\', document.getElementById(\'' + components[i] + '_product_id_slot\').textContent, this.checked)">';
+
+            var product_id_slot = document.getElementById(components[i] + "_product_id_slot");
+            product_id_slot.innerHTML = product_id;
         } else {
             result += "Select";
         }
@@ -309,7 +312,14 @@ function populatePost(post_id) {
     let images = post[5].split(',');
 
     for (var i = 0; i < images.length; i++) {
+        if (!images[i]) continue;
         post_images.innerHTML += '<img src="post_img/' + images[i] + '" class="post_image"style="max-width: calc(95%/' + images.length + ')">';
+    }
+
+    //if cant find any images, hide hr
+    var foundImages = document.getElementsByClassName("post_image");
+    if (foundImages.length == 0) {
+        document.getElementById("images_separator").hidden = true;
     }
 
     var like_button = document.getElementById("like_button");
@@ -354,6 +364,10 @@ function newPost() {
     // get title
     var titleInput = document.getElementById("new_post_title");
     let title = titleInput.value;
+    if (!title) {
+        alert("You need a title!");
+        return;
+    }
 
     // get author
     var user = getLoggedInUser();
@@ -458,4 +472,34 @@ ${totalPrice}
 
     var encoded = encodeURI(content);
     window.location.href = 'new_post.php?content=' + encoded;
+}
+
+function setBuildName() {
+    var buildNameInput = document.getElementById("build_name");
+    let build_name = buildNameInput.value;
+
+    let user_id = getLoggedInUser()[5];
+
+    SendGenericRequest('set_build_name', { 'build_name': build_name, 'user_id': user_id },
+        (res) => {
+        },
+        (res) => {
+            console.log("issue setting build name");
+            console.log(res);
+        }
+    );
+}
+
+function subscribeToProduct(component, product_id, checked) {
+    var user = getLoggedInUser();
+    let user_id = user[5];
+
+    SendGenericRequest('subscribe_to_product', { 'component': component, 'product_id': product_id, 'checked': checked, 'user_id': user_id },
+        (res) => {
+        },
+        (res) => {
+            console.log("issue subscribing to product");
+            console.log(res);
+        }
+    );
 }

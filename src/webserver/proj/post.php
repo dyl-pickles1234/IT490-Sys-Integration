@@ -9,7 +9,7 @@ $post_id = $_GET['post'];
         <div class="post_metadata" id="post_metadata" style="text-align: center; padding-bottom: 10px;"></div>
         <div class="post_content">
             <span id="post_text_content" style="font-size: 1.25em"></span>
-            <hr>
+            <hr id="images_separator">
             <div id="post_images" class="post_images"></div>
         </div>
         <div class="post_engagements" style="text-align: center; font-size: larger;">

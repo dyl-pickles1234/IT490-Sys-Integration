@@ -3,6 +3,30 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+function setBuildName($build_name, $user_id, $client)
+{
+    $request = array();
+    $request['type'] = "set_build_name";
+    $request['build_name'] = $build_name;
+    $request['user_id'] = $user_id;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
+function subscribeToProduct($component, $product_id, $checked, $user_id, $client)
+{
+    $request = array();
+    $request['type'] = "subscribe_to_product";
+    $request['component'] = $component;
+    $request['product_id'] = $product_id;
+    $request['checked'] = $checked;
+    $request['user_id'] = $user_id;
+    $response = $client->send_request($request);
+
+    return $response;
+}
+
 function commentOnPost($post_id, $comment, $author, $client)
 {
     $request = array();
@@ -227,6 +251,14 @@ switch ($request["type"]) {
     case "comment_on_post":
         // message, success
         $res = array("comment on post request", commentOnPost($request["post_id"], $request["comment"], $request["author"], $client));
+        break;
+    case "subscribe_to_product":
+        // message, success
+        $res = array("subscribe to product request", subscribeToProduct($request["component"], $request["product_id"], $request["checked"], $request["user_id"], $client));
+        break;
+    case "set_build_name":
+        // message, success
+        $res = array("set build name request", setBuildName($request["build_name"], $request["user_id"], $client));
         break;
 
     // default:
