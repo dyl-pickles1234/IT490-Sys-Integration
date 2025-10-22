@@ -1,12 +1,10 @@
 <?php
 
 $headers = [
-	"Authorization: Bearer v^1.1#i^1#f^0#r^0#I^3#p^3#t^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"
+	"Authorization: Bearer v^1.1#i^1#r^0#f^0#p^3#I^3#t^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"
 ];
 
-$query = "";
-
-$url = "https://api.ebay.com/buy/browse/v1/item_summary/search?q=graphicscard&limit=3";
+$url = "https://api.ebay.com/buy/browse/v1/item_summary/search?q=9070xt&limit=1";
 
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -18,13 +16,22 @@ curl_close($ch);
 
 $data = json_decode($apiResponse, true);
 
+$info = $data["itemSummaries"];
 
 
+/*
 foreach($data["itemSummaries"] as $info){
     $query = "insert gpu_info "
 }
+*/
 
-function toDatabase($data){
+function toDatabase($info){
+
+    $id     = $info["itemId"];
+    $name   = $info["title"];
+    $price  = $info["price"]["value"];
+    $url    = $info["itemWebUrl"];
+
     $mydb = new mysqli('127.0.0.1', 'testUser', '12345', 'proj_490');
 
     if ($mydb->errno != 0) {
@@ -32,6 +39,24 @@ function toDatabase($data){
         exit(0);
     }
     echo "successfully connected to database" . PHP_EOL;
+
+    // add new entry
+    $query = "insert into gpu_info (product_id, name, price, url) values ('$id', '$name', '$price', '$url');";
+
+    $response = $mydb->query($query);
+    if ($mydb->errno != 0) {
+        echo "failed to execute query:" . PHP_EOL;
+        echo __FILE__ . ':' . __LINE__ . ":error: " . $mydb->error . PHP_EOL;
+        exit(0);
+    }
+    //var_dump($response);
+
+    if ($response == true) {
+        echo "yeah all good" . PHP_EOL;
+    } else {
+        echo "bad" . PHP_EOL;
+        return false;
+    }
 
 
 }
