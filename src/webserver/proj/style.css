@@ -236,3 +236,7 @@ h1 select {
     color: #888888;
     margin-top: 5px;
 }
+
+.marketplace-item {
+    padding: 20px;
+}
